@@ -6,26 +6,26 @@ using namespace std;
 
 void DynamicTSP::start(int& path_length,int*& path, std::chrono::duration<double>& execution_time)
 {
-    dp[1][0] = 0; // Inicjalizacja: koszt dla stanu odwiedzaj¹cego tylko wierzcho³ek pocz¹tkowy wynosi 0
+    dp[1][0] = 0; // Inicjalizacja: koszt dla stanu odwiedzajÄ…cego tylko wierzchoÅ‚ek poczÄ…tkowy wynosi 0
 
     auto begin = std::chrono::high_resolution_clock::now();
 
-    // G³ówna pêtla obliczaj¹ca minimalne koszty przegl¹damy wszystkie maski reprezentuj¹ce zestawy odwiedzonych wierzcho³ków (odwiedzamy tylko wierzcho³ki startuj¹ce od 1)
-    for (int mask = 1; mask < (1 << vertex); mask += 2) // mask += 2, poniewa¿ maska powinna zawieraæ wierzcho³ek startowy (bit 1)
+    // GÅ‚Ã³wna pÄ™tla obliczajÄ…ca minimalne koszty przeglÄ…du wszystkich masek reprezentujÄ…cych zestawy odwiedzonych wierzchoÅ‚kÃ³w 
+    for (int mask = 1; mask < (1 << vertex); mask += 2) // mask += 2, poniewaÅ¼ maska powinna zawieraÄ‡ wierzchoÅ‚ek startowy (bit 1)
     {
-        for (int i = 1; i < vertex; i++) // Przesuwamy siê po wszystkich wierzcho³kach koñcowych
+        for (int i = 1; i < vertex; i++) // Iterujemy po wszystkich wierzchoÅ‚kach koÅ„cowych
         {
-            if (mask & (1 << i)) { // Sprawdzamy, czy `i` jest czêœci¹ aktualnej maski
+            if (mask & (1 << i)) { // Sprawdzamy, czy `i` jest czÄ™Å›ciÄ… aktualnej maski
                 for (int j = 0; j < vertex; j++)
                 {
-                    // Sprawdzamy, czy 'j' jest czêœci¹ maski, jednoczeœnie bêd¹c nie równe 'i' oraz czy mamy wczeœniej obliczony koszt dla maski bez `i`
+                    // Sprawdzamy, czy 'j' jest czÄ™Å›ciÄ… maski, jednoczeÅ›nie bÄ™dÄ…c nie rÃ³wne 'i' oraz czy mamy wczeÅ›niej obliczony koszt dla maski bez `i`
                     if (mask & (1 << j) && i != j && dp[mask ^ (1 << i)][j] != INT_MAX)
                     {
-                        int new_cost = dp[mask ^ (1 << i)][j] + tab[j][i]; // Obliczamy nowy koszt dla trasy koñcz¹cej siê w `i` po `j`
+                        int new_cost = dp[mask ^ (1 << i)][j] + tab[j][i]; // Obliczamy nowy koszt dla trasy koÅ„czÄ…cej siÄ™ w `i` po `j`
                         if (new_cost < dp[mask][i])
                         {
                             dp[mask][i] = new_cost; // Aktualizujemy minimalny koszt dla tego stanu
-                            parent[mask][i] = j; // Zapisujemy `j` jako rodzica `i`, aby œledziæ optymaln¹ œcie¿kê
+                            parent[mask][i] = j; // Zapisujemy `j` jako rodzica `i`, aby Å›ledziÄ‡ optymalnÄ… Å›cieÅ¼kÄ™
                         }
                     }
                 }
@@ -36,30 +36,30 @@ void DynamicTSP::start(int& path_length,int*& path, std::chrono::duration<double
     path_length = INT_MAX;
     int last_vertex = -1;
 
-    // Ustalamy minimalny koszt powrotu do wierzcho³ka startowego
+    // Ustalamy minimalny koszt powrotu do wierzchoÅ‚ka startowego
     for (int i = 1; i < vertex; i++)
     {
-        int cost = dp[(1 << vertex) - 1][i] + tab[i][0]; // Obliczamy ca³kowity koszt, dodaj¹c koszt powrotu z `i` do 0
+        int cost = dp[(1 << vertex) - 1][i] + tab[i][0]; // Obliczamy caÅ‚kowity koszt, dodajÄ…c koszt powrotu z `i` do 0
         if (cost < path_length)
         {
             path_length = cost; // Zapisujemy najmniejszy koszt
-            last_vertex = i; // Zapamiêtujemy ostatni wierzcho³ek w œcie¿ce
+            last_vertex = i; // ZapamiÄ™tujemy ostatni wierzchoÅ‚ek w Å›cieÅ¼ce
         }
     }
 
-    // Tworzenie optymalnej œcie¿ki
+    // Tworzenie optymalnej Å›cieÅ¼ki
     path = new int[vertex + 1];
     int mask = (1 << vertex) - 1;
 
-    // Odtwarzanie œcie¿ki w odwrotnej kolejnoœci
+    // Odtwarzanie Å›cieÅ¼ki w odwrotnej kolejnoÅ›ci
     for (int i = vertex - 1; i >= 0; --i)
     {
         path[i] = last_vertex;
         int temp = last_vertex;
-        last_vertex = parent[mask][last_vertex]; // Œledzimy rodzica wierzcho³ka
-        mask ^= (1 << temp); // Usuwamy `temp` z maski, by kontynuowaæ wstecz
+        last_vertex = parent[mask][last_vertex]; // Åšledzimy rodzica wierzchoÅ‚ka
+        mask ^= (1 << temp); // Usuwamy `temp` z maski
     }
-    path[vertex] = path[0]; // Dodajemy powrót do punktu pocz¹tkowego
+    path[vertex] = path[0]; // Dodajemy powrÃ³t do punktu poczÄ…tkowego
 
     auto end = std::chrono::high_resolution_clock::now();
     execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end - begin); 
